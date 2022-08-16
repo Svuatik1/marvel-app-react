@@ -1,31 +1,40 @@
-class MarvelService {
-  _apiBase = "https://gateway.marvel.com:443/v1/public/";
-  _apiKey = "apikey=9c3c837b96a89e1d91f8930d380b1498";
-  getResource = async (url) => {
-    let res = await fetch(url);
+import { useHttp } from "../hooks/http.hook";
 
-    if (!res.ok) {
-      throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-    }
+const useMarvelService = () => {
+  const { loading, request, error, clearError } = useHttp();
 
-    return res.json();
-  };
+  const _apiBase = "https://gateway.marvel.com:443/v1/public/";
+  const _apiKey = "apikey=9c3c837b96a89e1d91f8930d380b1498";
 
-  getAllCharacters = async () => {
-    const res = await this.getResource(
-      `${this._apiBase}characters?limit=9&offset=291&${this._apiKey}`
+  const getAllCharacters = async (count) => {
+    let lastCount;
+    if (count) {
+      lastCount = 291 + count;
+    } else lastCount = 291;
+
+    const res = await request(
+      `${_apiBase}characters?limit=9&offset=${lastCount}&${_apiKey}`
     );
-    return res.data.results.map(this._transformCharacter);
+    return res.data.results.map(_transformCharacter);
   };
 
-  getCharacter = async (id) => {
-    const res = await this.getResource(
-      `${this._apiBase}characters/${id}?${this._apiKey}`
+  const getCharacter = async (id) => {
+    const res = await request(`${_apiBase}characters/${id}?${_apiKey}`);
+    return _transformCharacter(res.data.results[0]);
+  };
+
+  const getAllComics = async (count) => {
+    let lastCount;
+    if (count) {
+      lastCount = 220 + count;
+    } else lastCount = 220;
+    const res = await request(
+      `${_apiBase}comics?limit=8&offset=${lastCount}&${_apiKey}`
     );
-    return this._transformCharacter(res.data.results[0]);
+    return res.data;
   };
 
-  _transformCharacter = (char) => {
+  const _transformCharacter = (char) => {
     let descr;
     if (char.description) {
       if (char.description.length > 200) {
@@ -36,13 +45,23 @@ class MarvelService {
     } else descr = "There is no description about this character";
 
     return {
+      id: char.id,
       name: char.name,
       description: descr,
       thumbnail: char.thumbnail.path + "." + char.thumbnail.extension,
       homepage: char.urls[0].url,
       wiki: char.urls[1].url,
+      comics: char.comics.items,
     };
   };
-}
+  return {
+    loading,
+    error,
+    getAllCharacters,
+    getCharacter,
+    clearError,
+    getAllComics,
+  };
+};
 
-export default MarvelService;
+export default useMarvelService;
