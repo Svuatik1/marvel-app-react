@@ -6,12 +6,11 @@ import useMarvelService from "../../services/MarvelService";
 const ComicsList = () => {
   const [comicsList, setComicsList] = useState([]);
   const [newLoading, setNewLoading] = useState(true);
-  // const [allChars, setAllChar] = useState([]);
   const [count, setCount] = useState(8);
   const { loading, getAllComics } = useMarvelService();
 
   useEffect(() => {
-    getComicsInfo();
+    return getComicsInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
