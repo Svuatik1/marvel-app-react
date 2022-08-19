@@ -2,6 +2,7 @@ import "./comicsList.scss";
 import { useState, useEffect } from "react";
 import Spinner from "../spinner/Spinner";
 import useMarvelService from "../../services/MarvelService";
+import { Link } from "react-router-dom";
 
 const ComicsList = () => {
   const [comicsList, setComicsList] = useState([]);
@@ -49,7 +50,7 @@ const ComicsList = () => {
     return (
       <li key={i} className="comics__item">
         {/* eslint-disable-next-line */}
-        <a href="#">
+        <Link to={`/comics/${item.id}`}>
           <img
             src={item.imgUrl}
             alt={item.title}
@@ -57,7 +58,7 @@ const ComicsList = () => {
           />
           <div className="comics__item-name">{item.title}</div>
           <div className="comics__item-price">{item.price}</div>
-        </a>
+        </Link>
       </li>
     );
   });
